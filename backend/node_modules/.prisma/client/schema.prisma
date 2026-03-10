@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  role      String   // DOCTOR, RECEPTIONIST, ADMIN
+  mobile    String   @unique
+  password      String
+  qualification String?
+  specialization String?
+  registrationNo String?
+  bio           String?
+  clinicName    String?
+  groqApiKey    String?  // Store dynamic Groq API Key
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  prescriptions Prescription[]
+  appointments  Appointment[]
+  labOrders     LabOrder[]
+}
+
+model Patient {
+  id               String   @id @default(uuid())
+  patientId        String   @unique // Format: CFP-YYYY-XXXXX
+  fullName         String
+  dob              DateTime?
+  gender           String
+  mobileNo         String   @unique
+  address          String?
+  bloodGroup       String?
+  allergies        String?
+  chronicConditions String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  prescriptions    Prescription[]
+  appointments     Appointment[]
+  labOrders        LabOrder[]
+}
+
+model Prescription {
+  id            String   @id @default(uuid())
+  patientId     String
+  patientName   String   // Stored for UI convenience 
+  doctorId      String
+  date          String   // Stored as ISO date string e.g '2026-03-07'
+  diagnosis     String?
+  instructions  String?
+  followUpDate  DateTime?
+  status        String   @default("COMPLETED") // DRAFT, COMPLETED
+  audioUrl      String?  // URL to the original AI Scribe recording
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  patient       Patient  @relation(fields: [patientId], references: [patientId])
+  doctor        User     @relation(fields: [doctorId], references: [id])
+  medicines     PrescriptionLine[]
+}
+
+model PrescriptionLine {
+  id             String   @id @default(uuid())
+  prescriptionId String
+  drugName       String
+  dosage         String
+  frequency      String   // Morning, Afternoon, Evening, Night format (e.g. "1-0-1")
+  durationDays   Int
+  instructions   String?
+
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+}
+
+model Appointment {
+  id              String   @id @default(uuid())
+  patientId       String?
+  patientName     String
+  patientMobile   String?
+  doctorId        String?
+  date            String   // YYYY-MM-DD format for easy querying
+  timeSlot        String   // 10:00
+  timeStr         String   // 10:00 AM
+  type            String   @default("NEW")
+  status          String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient? @relation(fields: [patientId], references: [id])
+  doctor          User?    @relation(fields: [doctorId], references: [id])
+}
+
+model Invoice {
+  id             String   @id @default(uuid())
+  invoiceNumber  String   @unique
+  patientName    String
+  patientMobile  String?
+  date           String   // YYYY-MM-DD
+  subtotal       Float
+  cgst           Float
+  sgst           Float
+  total          Float
+  status         String   @default("PAID")
+  paymentMethod  String   @default("CASH")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  items          InvoiceItem[]
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  description String
+  amount      Float
+  
+  invoice     Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model LabOrder {
+  id              String   @id @default(uuid())
+  patientId       String
+  doctorId        String
+  testNames       String   // Comma separated list of tests
+  instructions    String?
+  status          String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  resultsUrl      String?  // Link to uploaded report/PDF
+  orderedAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient         Patient  @relation(fields: [patientId], references: [patientId])
+  doctor          User     @relation(fields: [doctorId], references: [id])
+}
+
+model LabTest {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  category    String   // Blood, Imaging, Urine, etc.
+  basePrice   Float
+  description String?
+}

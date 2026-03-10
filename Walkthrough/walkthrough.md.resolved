@@ -1,0 +1,34 @@
+# Phase 2: Advanced Features Walkthrough
+
+Implementation of premium clinical features for multi-doctor environments and offline resilience.
+
+## 1. PWA Offline Support
+The application now handles connectivity drops gracefully. Key API endpoints are cached, and users are notified of their status.
+- **Offline Badge**: A real-time connectivity indicator in the header.
+- **Runtime Caching**: Patient data and drug searches are cached using Workbox (StaleWhileRevalidate strategy).
+
+## Phase 3: Integration & Ecosystem - Lab, Insurance & Communication
+ClinicFlow Pro now supports ordering clinical investigations, insurance linking, and automated patient communication.
+
+### 1. Lab Order Management
+- Practitioners can order tests (CBC, Lipid Profile, etc.) directly from the Prescription form.
+- **Patient Profile**: A comprehensive history view for each patient, including past prescriptions and pending lab results.
+
+### 2. ABHA Insurance Integration (Mockup)
+- **Paperless Records**: Link patients to the Ayushman Bharat Digital Mission (ABDM) using their ABHA ID.
+- **OTP Verification**: Simulated high-security linking flow for insurance compliance.
+
+![ABHA Verification](/Users/dharmik/.gemini/antigravity/brain/6c5d76d2-c3b4-48fc-a6fe-81229eb69be4/.system_generated/click_feedback/click_feedback_1772916835270.png)
+*Verified ABHA ID status on the patient profile.*
+
+### 3. Mobile Patient Portal
+- **PWA Experience**: Patients can access their health records, prescriptions, and lab reports via a secure mobile link.
+- **Automated Alerts**: Appointment confirmations and record updates are logged via the new Communication Utility.
+
+![Patient Portal Mobile View](/Users/dharmik/.gemini/antigravity/brain/6c5d76d2-c3b4-48fc-a6fe-81229eb69be4/.system_generated/click_feedback/click_feedback_1772917039654.png)
+*Mobile-optimized view for patient self-service.*
+
+## Verification Results
+- [x] **Backend**: Public API registered for secure portal access; Communication triggers verified on appointment booking.
+- [x] **Frontend**: ABHA linking flow with mock OTP verified; Patient Portal dynamically fetching subset records.
+- [x] **UX**: Verified mobile responsiveness and smooth state transitions in the portal.
